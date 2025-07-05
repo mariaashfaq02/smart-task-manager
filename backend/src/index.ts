@@ -1,12 +1,9 @@
+import express from 'express';//web framework to create routes ,handle requests and build API server
+import mongoose from 'mongoose';//library helping to interact with mongoDB using models and schemas
+import cors from 'cors'; //allows frontend working on a different port to access backend 
+import dotenv from 'dotenv';//for loading environment variables
+import taskRoutes from './routes/taskRoutes';
 
-//web framework to create routes ,handle requests and build API server
-import express from 'express';
-//library helping to interact with mongoDB using models and schemas
-import mongoose from 'mongoose';
-//allows frontend working on a different port to access backend 
-import cors from 'cors';
-//for loading environment variables
-import dotenv from 'dotenv';
 
 //activates so .env file is read
 dotenv.config();
@@ -27,6 +24,9 @@ app.get('/',(_req,res)=>{
     res.send('API is running ...');
 })
 
+//to use tasks related routes
+app.use('/api/tasks',taskRoutes)
+
 //connect to mongodb
 mongoose
 .connect(process.env.MONGO_URI!)
@@ -38,4 +38,5 @@ mongoose
 })
 .catch((err)=>{
     console.log(err);
+    console.error('Error connecting to MongoDB',err)
 })
