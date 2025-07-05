@@ -17,10 +17,22 @@ git clone https://github.com/mariaashfaq02/smart-task-manager.git
 # Step 2: Navigate to the project directory.
 cd smart-task-manager
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Step 3: Navigate to frontend directory.
+cd frontend
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Install the necessary dependencies.
+npm install
+
+# Step 5: Start the development server with auto-reloading and an instant preview.
+npm run dev
+
+#Step 6: Navigate to backend directory in another terminal.
+cd backend
+
+# Step 7: Install the necessary dependencies.
+npm install
+
+# Step 8: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
@@ -33,3 +45,5 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- Node JS and Express
+- MongoDB and Mongoose 
