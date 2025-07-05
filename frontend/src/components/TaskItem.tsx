@@ -112,13 +112,13 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleComplete, onEdit, onD
               {/* Tags and Info */}
               <div className="flex items-center flex-wrap gap-2 mt-3">
                 {/* Category Tag */}
-                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getCategoryColor(task.category)}`}>
+                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getCategoryColor(task.category.toLowerCase())}`}>
                   <Tag className="w-3 h-3 mr-1" />
                   {task.category.charAt(0).toUpperCase() + task.category.slice(1)}
                 </span>
 
                 {/* Priority Indicator */}
-                <span className={`inline-flex items-center text-xs font-medium ${getPriorityColor(task.priority)}`}>
+                <span className={`inline-flex items-center text-xs font-medium ${getPriorityColor(task.priority.toLowerCase())}`}>
                   <AlertCircle className="w-3 h-3 mr-1" />
                   {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
                 </span>

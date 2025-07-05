@@ -7,6 +7,12 @@ import TaskForm from './TaskForm';
 import TaskItem from './TaskItem';
 import TaskFilters from './TaskFilters';
 import { Task, TaskCategory, TaskFilter } from '../types/task';
+import {
+  fetchTasks,
+  createTask,
+  updateTask as updateTaskApi,
+  deleteTask as deleteTaskApi
+} from '@/utils/tasks';
 
 const TaskManager = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -20,10 +26,11 @@ const TaskManager = () => {
 
   // Load tasks from localStorage on component mount
   useEffect(() => {
-    const savedTasks = localStorage.getItem('smart-tasks');
-    if (savedTasks) {
-      setTasks(JSON.parse(savedTasks));
-    }
+    const loadTasks = async () => {
+      const data = await fetchTasks();
+      setTasks(data);
+    };
+    loadTasks();
   }, []);
 
   // Save tasks to localStorage whenever tasks change
@@ -31,32 +38,34 @@ const TaskManager = () => {
     localStorage.setItem('smart-tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  const addTask = (taskData: Omit<Task, 'id' | 'createdAt'>) => {
-    const newTask: Task = {
-      ...taskData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString()
-    };
+  const addTask = async (taskData: Omit<Task, 'id' | 'createdAt'>) => {
+    const newTask = await createTask(taskData);
     setTasks(prev => [...prev, newTask]);
     setShowTaskForm(false);
   };
 
-  const updateTask = (id: string, updates: Partial<Task>) => {
-    setTasks(prev => prev.map(task => 
-      task.id === id ? { ...task, ...updates } : task
-    ));
+
+  const updateTask = async (id: string, updates: Partial<Task>) => {
+    const updated = await updateTaskApi(id, updates);
+    setTasks(prev => prev.map(task => task.id === id ? updated : task));
     setEditingTask(null);
   };
 
-  const deleteTask = (id: string) => {
+
+
+  const deleteTask = async (id: string) => {
+    await deleteTaskApi(id);
     setTasks(prev => prev.filter(task => task.id !== id));
   };
 
-  const toggleTaskComplete = (id: string) => {
-    setTasks(prev => prev.map(task => 
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+
+  const toggleTaskComplete = async (id: string) => {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    const updated = await updateTaskApi(id, { completed: !task.completed });
+    setTasks(prev => prev.map(t => t.id === id ? updated : t));
   };
+
 
   const handleEditTask = (task: Task) => {
     setEditingTask(task);
@@ -83,9 +92,10 @@ const TaskManager = () => {
           if (!a.deadline) return 1;
           if (!b.deadline) return -1;
           return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
-        case 'priority':
+        case 'priority': {
           const priorityOrder = { high: 3, medium: 2, low: 1 };
           return priorityOrder[b.priority] - priorityOrder[a.priority];
+        }
         case 'created':
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         default:
@@ -96,10 +106,10 @@ const TaskManager = () => {
   const getTaskStats = () => {
     const total = tasks.length;
     const completed = tasks.filter(t => t.completed).length;
-    const overdue = tasks.filter(t => 
+    const overdue = tasks.filter(t =>
       !t.completed && t.deadline && new Date(t.deadline) < new Date()
     ).length;
-    
+
     return { total, completed, overdue };
   };
 
@@ -188,8 +198,8 @@ const TaskManager = () => {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-gray-900">
-                    {filters.category === 'all' ? 'All' : 
-                     filters.category.charAt(0).toUpperCase() + filters.category.slice(1)} Tasks
+                    {filters.category === 'all' ? 'All' :
+                      filters.category.charAt(0).toUpperCase() + filters.category.slice(1)} Tasks
                     <span className="ml-2 text-sm text-gray-500">({filteredTasks.length})</span>
                   </h2>
                 </div>
@@ -201,8 +211,8 @@ const TaskManager = () => {
                     </div>
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks found</h3>
                     <p className="text-gray-600 mb-4">
-                      {tasks.length === 0 
-                        ? "Start by adding your first task!" 
+                      {tasks.length === 0
+                        ? "Start by adding your first task!"
                         : "Try adjusting your filters or add a new task."
                       }
                     </p>
@@ -237,8 +247,8 @@ const TaskManager = () => {
         {showTaskForm && (
           <TaskForm
             task={editingTask}
-            onSubmit={editingTask ? 
-              (data) => updateTask(editingTask.id, data) : 
+            onSubmit={editingTask ?
+              (data) => updateTask(editingTask.id, data) :
               addTask
             }
             onCancel={handleCancelEdit}
