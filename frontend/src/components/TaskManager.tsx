@@ -188,7 +188,7 @@ const TaskManager = () => {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-gray-900">
-                    {filters.category === 'all' ? 'All Tasks' : 
+                    {filters.category === 'all' ? 'All' : 
                      filters.category.charAt(0).toUpperCase() + filters.category.slice(1)} Tasks
                     <span className="ml-2 text-sm text-gray-500">({filteredTasks.length})</span>
                   </h2>
