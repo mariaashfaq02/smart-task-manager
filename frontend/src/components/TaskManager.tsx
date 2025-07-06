@@ -23,6 +23,8 @@ const TaskManager = () => {
     status: 'all',
     sortBy: 'deadline'
   });
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
 
   // Load tasks from localStorage on component mount
   useEffect(() => {
@@ -33,38 +35,61 @@ const TaskManager = () => {
     loadTasks();
   }, []);
 
-  // Save tasks to localStorage whenever tasks change
-  useEffect(() => {
-    localStorage.setItem('smart-tasks', JSON.stringify(tasks));
-  }, [tasks]);
 
   const addTask = async (taskData: Omit<Task, 'id' | 'createdAt'>) => {
-    const newTask = await createTask(taskData);
-    setTasks(prev => [...prev, newTask]);
+    const newTaskFromApi = await createTask(taskData);
+
+    const normalizedTask: Task = {
+      ...newTaskFromApi,
+      id: newTaskFromApi._id,
+      completed: newTaskFromApi.isCompleted
+    };
+
+    setTasks(prev => [...prev, normalizedTask]);
     setShowTaskForm(false);
   };
+
 
 
   const updateTask = async (id: string, updates: Partial<Task>) => {
     const updated = await updateTaskApi(id, updates);
     setTasks(prev => prev.map(task => task.id === id ? updated : task));
     setEditingTask(null);
+    setShowTaskForm(false);
   };
 
 
 
   const deleteTask = async (id: string) => {
-    await deleteTaskApi(id);
-    setTasks(prev => prev.filter(task => task.id !== id));
+    console.log('Deleting task with ID:', id);
+    try {
+      await deleteTaskApi(id);
+      setTasks(prev => prev.filter(task => task.id !== id));
+    } catch (error) {
+      console.error("Delete task failed:", error);
+      alert("Failed to delete task.");
+    }
   };
-
 
   const toggleTaskComplete = async (id: string) => {
     const task = tasks.find(t => t.id === id);
     if (!task) return;
-    const updated = await updateTaskApi(id, { completed: !task.completed });
-    setTasks(prev => prev.map(t => t.id === id ? updated : t));
+
+    const updated = await updateTaskApi(id, {
+      isCompleted: !task.completed 
+    });
+
+    const normalizedTask: Task = {
+  ...updated,
+  id: updated._id,
+  completed: updated.isCompleted
+};
+
+
+    setTasks(prev => prev.map(t => t.id === id ? normalizedTask : t));
+
   };
+
 
 
   const handleEditTask = (task: Task) => {
@@ -233,7 +258,7 @@ const TaskManager = () => {
                         task={task}
                         onToggleComplete={toggleTaskComplete}
                         onEdit={handleEditTask}
-                        onDelete={deleteTask}
+                        onDelete={() => setConfirmDeleteId(task.id)}
                       />
                     ))}
                   </div>
@@ -254,6 +279,32 @@ const TaskManager = () => {
             onCancel={handleCancelEdit}
           />
         )}
+        {confirmDeleteId && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <Card className="w-full max-w-sm bg-white p-6 shadow-xl border-0 rounded-xl">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Confirm Deletion</h2>
+              <p className="text-gray-600 mb-6">Are you sure you want to delete this task? This action cannot be undone.</p>
+              <div className="flex justify-end space-x-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setConfirmDeleteId(null)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                  onClick={async () => {
+                    await deleteTask(confirmDeleteId);
+                    setConfirmDeleteId(null);
+                  }}
+                >
+                  Delete
+                </Button>
+              </div>
+            </Card>
+          </div>
+        )}
+
       </div>
     </div>
   );

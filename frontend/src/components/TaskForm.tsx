@@ -26,17 +26,20 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
   });
 
   useEffect(() => {
-    if (task) {
-      setFormData({
-        title: task.title,
-        description: task.description || '',
-        category: task.category,
-        priority: task.priority,
-        deadline: task.deadline ? task.deadline.split('T')[0] : '',
-        completed: task.completed
-      });
-    }
-  }, [task]);
+  if (task) {
+    const updatedForm = {
+      title: task.title,
+      description: task.description || '',
+      category: task.category,
+      priority: task.priority,
+      deadline: task.deadline ? task.deadline.split('T')[0] : '',
+      completed: task.completed
+    };
+    //console.log("Form data on edit load:", updatedForm);
+    setFormData(updatedForm);
+  }
+}, [task]);
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,7 +140,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
                   }
                 >
                   <SelectTrigger className="mt-1">
-                    <SelectValue />
+                     <SelectValue defaultValue={formData.category} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="work">
@@ -173,7 +176,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
                   }
                 >
                   <SelectTrigger className="mt-1">
-                    <SelectValue />
+                     <SelectValue defaultValue={formData.priority} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="high">

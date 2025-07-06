@@ -6,13 +6,13 @@ const TaskSchema = new mongoose.Schema(
     description: String,
     category: {
       type: String,
-      enum: ["Work", "Personal", "Learning"],
-      default: "Personal",
+      enum: ["work", "personal", "learning"],
+      default: "personal",
     },
     priority: {
       type: String,
-      enum: ["High", "Medium", "Low"],
-      default: "Medium",
+      enum: ["high", "medium", "low"],
+      default: "medium",
     },
     deadline: Date,
     isCompleted: { type: Boolean, default: false },

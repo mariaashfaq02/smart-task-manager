@@ -35,12 +35,12 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleComplete, onEdit, onD
 
   const getDeadlineStatus = () => {
     if (!task.deadline) return null;
-    
+
     const deadline = new Date(task.deadline);
     const today = new Date();
     const diffTime = deadline.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays < 0) {
       return { status: 'overdue', text: `${Math.abs(diffDays)} days overdue`, color: 'text-red-600' };
     } else if (diffDays === 0) {
@@ -63,7 +63,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleComplete, onEdit, onD
   };
 
   const handleDelete = () => {
+    console.log("Delete button clicked");
     if (showDeleteConfirm) {
+      console.log("Confirmed delete:", task.id);
       onDelete(task.id);
       setShowDeleteConfirm(false);
     } else {
@@ -72,17 +74,16 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleComplete, onEdit, onD
     }
   };
 
+
   return (
-    <Card className={`p-4 bg-white border transition-all duration-200 hover:shadow-md ${
-      task.completed ? 'opacity-75' : ''
-    }`}>
+    <Card className={`p-4 bg-white border transition-all duration-200 hover:shadow-md ${task.completed ? 'opacity-75' : ''
+      }`}>
       <div className="flex items-start space-x-3">
         {/* Completion Toggle */}
         <button
           onClick={() => onToggleComplete(task.id)}
-          className={`flex-shrink-0 mt-0.5 transition-colors duration-200 ${
-            task.completed ? 'text-green-600' : 'text-gray-400 hover:text-green-600'
-          }`}
+          className={`flex-shrink-0 mt-0.5 transition-colors duration-200 ${task.completed ? 'text-green-600' : 'text-gray-400 hover:text-green-600'
+            }`}
         >
           {task.completed ? (
             <CheckCircle2 className="w-5 h-5" />
@@ -95,16 +96,14 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleComplete, onEdit, onD
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h3 className={`font-medium text-gray-900 ${
-                task.completed ? 'line-through text-gray-500' : ''
-              }`}>
+              <h3 className={`font-medium text-gray-900 ${task.completed ? 'line-through text-gray-500' : ''
+                }`}>
                 {task.title}
               </h3>
-              
+
               {task.description && (
-                <p className={`text-sm mt-1 ${
-                  task.completed ? 'text-gray-400' : 'text-gray-600'
-                }`}>
+                <p className={`text-sm mt-1 ${task.completed ? 'text-gray-400' : 'text-gray-600'
+                  }`}>
                   {task.description}
                 </p>
               )}
@@ -149,15 +148,12 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggleComplete, onEdit, onD
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={handleDelete}
-                className={`h-8 w-8 p-0 transition-colors ${
-                  showDeleteConfirm 
-                    ? 'text-red-600 bg-red-50 hover:bg-red-100' 
-                    : 'text-gray-400 hover:text-red-600'
-                }`}
+                onClick={() => onDelete(task.id)}
+                className="text-gray-400 hover:text-red-600 h-8 w-8 p-0"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
+
             </div>
           </div>
         </div>
