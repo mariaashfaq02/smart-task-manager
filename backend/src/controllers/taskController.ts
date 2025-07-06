@@ -48,18 +48,19 @@ export const createTask = async (req: Request, res: Response) => {
 
 
 //PUT /api/tasks/:id
-export const updateTask = async (req: Request, res: Response) => {
+export const updateTask = async (req: Request, res: Response): Promise<void> => {
   try {
     const updated = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
 
     if (!updated) {
       console.warn(`Task not found for ID: ${req.params.id}`);
-      return res.status(404).json({ error: "Task not found" });
+      res.status(404).json({ error: "Task not found" });
+      return;
     }
 
     res.json({
       ...updated.toObject(),
-      completed: updated.isCompleted, 
+      completed: updated.isCompleted,
     });
   } catch (err) {
     console.error("Error updating task:", err);
